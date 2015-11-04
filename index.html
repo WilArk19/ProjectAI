@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Mancala - Have fun with heuristics!</title>
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+	<style type="text/css">
+		body {
+			margin: 0;
+		}
+	</style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var width = 1000,
+		height = 600;
+
+var xScale = .6,
+		yScale = .6;
+
+var heightP1 = height/4+32,
+		heightP2 = height/4+75;
+
+var game = new Phaser.Game(width, height, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+function preload() {
+
+	game.load.image('board', 'assets/board-hori@3x.png');
+
+	game.load.image('store-p1', 'assets/store-hori-1@3x.png');
+	game.load.image('store-p2', 'assets/store-hori-0@3x.png');
+
+	game.load.image('stone-0', 'assets/stone-0.png');
+	game.load.image('stone-1', 'assets/stone-1.png');
+	game.load.image('stone-2', 'assets/stone-2.png');
+	game.load.image('stone-3', 'assets/stone-3.png');
+
+	game.load.image('hole-p1-1', 'assets/hole-hori-11@3x.png');
+	game.load.image('hole-p1-2', 'assets/hole-hori-10@3x.png');
+	game.load.image('hole-p1-3', 'assets/hole-hori-9@3x.png');
+	game.load.image('hole-p1-4', 'assets/hole-hori-8@3x.png');
+	game.load.image('hole-p1-5', 'assets/hole-hori-7@3x.png');
+	game.load.image('hole-p1-6', 'assets/hole-hori-6@3x.png');
+
+	game.load.image('hole-p2-1', 'assets/hole-hori-5@3x.png');
+	game.load.image('hole-p2-2', 'assets/hole-hori-4@3x.png');
+	game.load.image('hole-p2-3', 'assets/hole-hori-3@3x.png');
+	game.load.image('hole-p2-4', 'assets/hole-hori-2@3x.png');
+	game.load.image('hole-p2-5', 'assets/hole-hori-1@3x.png');
+	game.load.image('hole-p2-6', 'assets/hole-hori-0@3x.png');
+
+}
+
+function create() {
+
+	initLayout();
+
+
+}
+
+function update() {
+
+}
+
+function initLayout() {
+
+	// Game board
+	game.add.sprite(0, height/4, 'board')
+		.scale.setTo(xScale, yScale);
+
+	// Storage to store the stones for each player
+	game.add.sprite(30, heightP1, 'store-p1')
+		.scale.setTo(xScale, yScale);
+
+	game.add.sprite(width-213, heightP2, 'store-p2')
+		.scale.setTo(xScale, yScale);
+
+	// Holes for player 1
+	game.add.sprite(25+110, heightP1, 'hole-p1-1')
+		.scale.setTo(xScale, yScale);
+
+	game.add.sprite(25+220, heightP1, 'hole-p1-2')
+		.scale.setTo(xScale, yScale);
+
+	game.add.sprite(25+330, heightP1, 'hole-p1-3')
+		.scale.setTo(xScale, yScale);
+
+	game.add.sprite(25+440, heightP1, 'hole-p1-4')
+		.scale.setTo(xScale, yScale);
+
+	game.add.sprite(25+550, heightP1, 'hole-p1-5')
+		.scale.setTo(xScale, yScale);
+
+	game.add.sprite(25+660, heightP1, 'hole-p1-6')
+		.scale.setTo(xScale, yScale);
+
+	// Holes for player 2
+	game.add.sprite(25+110, heightP2+140, 'hole-p2-1')
+		.scale.setTo(xScale, yScale);
+
+	game.add.sprite(25+220, heightP2+140, 'hole-p2-2')
+		.scale.setTo(xScale, yScale);
+
+	game.add.sprite(25+330, heightP2+140, 'hole-p2-3')
+		.scale.setTo(xScale, yScale);
+
+	game.add.sprite(25+440, heightP2+140, 'hole-p2-4')
+		.scale.setTo(xScale, yScale);
+
+	game.add.sprite(25+550, heightP2+140, 'hole-p2-5')
+		.scale.setTo(xScale, yScale);
+
+	game.add.sprite(25+660, heightP2+140, 'hole-p2-6')
+		.scale.setTo(xScale, yScale);
+
+	// Stones for player 1
+
+
+	// Stones for player 2
+}
+
+</script>
+
+</body>
+</html>
