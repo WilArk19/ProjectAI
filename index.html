@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Mancala - Have fun with heuristics!</title>
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+	<style type="text/css">
+		body {
+			margin: 0;
+		}
+	</style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var width = 1000,
+	height = 600;
+
+var xScale = .6,
+	yScale = .6;
+
+var heightP1 = height/4+32,
+	heightP2 = height/4+75;
+
+var maxStone = 4,  // number of stones on each bowl
+	bowls = 6;  // number of bowls for each player
+
+var scoreBoard = {
+	player1: { total: 0, bowl: [], displayTotal: null, displayBowl: [] },
+	player2: { total: 0, bowl: [], displayTotal: null, displayBowl: [] }
+};
+
+var game = new Phaser.Game(width, height, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+function preload() {
+
+	game.load.image('board', 'assets/board-hori@3x.png');
+
+	game.load.image('store-p1', 'assets/store-hori-1@3x.png');
+	game.load.image('store-p2', 'assets/store-hori-0@3x.png');
+
+	game.load.image('stone-0', 'assets/stone-0.png');
+	game.load.image('stone-1', 'assets/stone-1.png');
+	game.load.image('stone-2', 'assets/stone-2.png');
+	game.load.image('stone-3', 'assets/stone-3.png');
+
+	game.load.image('hole-p1-1', 'assets/hole-hori-11@3x.png');
+	game.load.image('hole-p1-2', 'assets/hole-hori-10@3x.png');
+	game.load.image('hole-p1-3', 'assets/hole-hori-9@3x.png');
+	game.load.image('hole-p1-4', 'assets/hole-hori-8@3x.png');
+	game.load.image('hole-p1-5', 'assets/hole-hori-7@3x.png');
+	game.load.image('hole-p1-6', 'assets/hole-hori-6@3x.png');
+
+	game.load.image('hole-p2-1', 'assets/hole-hori-5@3x.png');
+	game.load.image('hole-p2-2', 'assets/hole-hori-4@3x.png');
+	game.load.image('hole-p2-3', 'assets/hole-hori-3@3x.png');
+	game.load.image('hole-p2-4', 'assets/hole-hori-2@3x.png');
+	game.load.image('hole-p2-5', 'assets/hole-hori-1@3x.png');
+	game.load.image('hole-p2-6', 'assets/hole-hori-0@3x.png');
+
+}
+
+function create() {
+
+	initLayout();
+	initScore();
+
+}
+
+function update() {
+
+}
+
+function initLayout() {
+
+	// Game board
+	game.add.sprite(0, height/4, 'board')
+		.scale.setTo(xScale, yScale);
+
+	// Storage to store the stones for each player
+	game.add.sprite(30, heightP1, 'store-p1')
+		.scale.setTo(xScale, yScale);
+
+	game.add.sprite(width-213, heightP2, 'store-p2')
+		.scale.setTo(xScale, yScale);
+
+	// Holes for player 1
+	for(var i=1; i<=bowls; i++) {
+		game.add.sprite(25+110*i, heightP1, 'hole-p1-'+i)
+			.scale.setTo(xScale, yScale);
+	}
+
+	// Holes for player 2
+	for(var i=1; i<=bowls; i++) {
+		game.add.sprite(25+110*i, heightP2+140, 'hole-p2-'+i)
+			.scale.setTo(xScale, yScale);
+	}
+
+	// Stones for player 1
+	for(var i=1; i<=bowls; i++) {
+		for(var j=0; j<maxStone; j++) {
+			var plusOrMinus = Math.random < 0.5 ? -1 : 1;
+			var offset = plusOrMinus * Math.floor(Math.random() * 45 + 1);
+
+			game.add.sprite(25+110*i+20+offset, heightP1+20+offset, 'stone-'+j)
+				.scale.setTo(xScale, yScale);
+		}
+	}
+
+	// Stones for player 2
+	for(var i=1; i<=bowls; i++) {
+		for(var j=0; j<maxStone; j++) {
+			var plusOrMinus = Math.random < 0.5 ? -1 : 1;
+			var offset = plusOrMinus * Math.floor(Math.random() * 45 + 1);
+
+			game.add.sprite(25+110*i+20+offset, heightP2+140+20+offset, 'stone-'+j)
+				.scale.setTo(xScale, yScale);
+		}
+	}
+}
+
+function initScore() {
+	for(var i=1; i<=bowls; i++) {
+		scoreBoard.player1.bowl.push(maxStone);
+		scoreBoard.player1.displayBowl[i] = game.add.text(25+110*i+40, heightP1+100, maxStone, { fontSize: '32px', fill: '#000' });
+		scoreBoard.player1.displayTotal = game.add.text(25+45, heightP1+10, '0', { fontSize: '32px', fill: '#000' });
+
+		scoreBoard.player2.bowl.push(maxStone);
+		scoreBoard.player2.displayBowl[i] = game.add.text(25+110*i+40, heightP2+140-30, maxStone, { fontSize: '32px', fill: '#000' });
+		scoreBoard.player2.displayTotal = game.add.text(width-173, heightP2+200, '0', { fontSize: '32px', fill: '#000' });
+	}
+}
+
+</script>
+
+</body>
+</html>
