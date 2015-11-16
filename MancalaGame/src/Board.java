@@ -2,6 +2,7 @@
 public class Board {
 	
 	private int[] board;
+	int boardSize;
 	
 	public Board(){}
 	
@@ -11,6 +12,7 @@ public class Board {
 	 */
 	public Board(int size, int numOfStones){
 		//Number of pits for each player + 2 mancalas
+		this.boardSize = size;
 		int lenOfArray = 2*size + 2;
 		
 		board = new int[lenOfArray];
@@ -21,7 +23,7 @@ public class Board {
 		
 		//Set the Mancala pits to zero
 		board[size] = 0; //Mancala for player 1
-		board[lenOfArray] = 0; //Mancala for player 2
+		board[lenOfArray-1] = 0; //Mancala for player 2
 	}
 	
 	
@@ -39,6 +41,22 @@ public class Board {
 		return ret.substring(0,ret.length()-1);
 		
 	}
+	
+	public int getBoardSize() {
+		return boardSize;
+	}
+	
+
+	public void setBoardSize(int size) {
+		this.boardSize = size;
+	}
+	
+
+	//Display the board
+	public void displayBoard(){
+		System.out.println("Display the board");
+	}
+	
 	
 }
 
