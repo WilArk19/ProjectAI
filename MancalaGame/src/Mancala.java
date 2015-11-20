@@ -12,7 +12,8 @@ public class Mancala{
 		gameStart();
 	}
 
-
+	
+	//just to commit
 	//Preparation of game
 	public void gameStart(){
 
