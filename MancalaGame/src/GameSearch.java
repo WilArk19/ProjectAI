@@ -1,5 +1,7 @@
 
-public class GameSearch {
+
+
+public abstract class GameSearch {
 
 	Board mancalaBoard;
 	AlgoType searchType;
@@ -14,25 +16,23 @@ public class GameSearch {
 		isHuman = false;
 		
 	}
+	
+	public GameSearch(Board mancalaBoard, AlgoType algoType , boolean isHuman){
+		this.mancalaBoard = mancalaBoard;
+		this.searchType = algoType;
+		this.isHuman = isHuman;
+	}
 		
-	//contain the start of game
-	public void playGame(){
-
-	}
-
-	//The logic for greedy algorithm 
-	public void greedy(){
-
-	}
-
-	//The logic for minimax algorithm 
-	public void minimax(){
-
-	}
-
-	//The logic for alphaBeta
-	public void alphaBeta(){
-
-	}
+	
+	
+	public abstract boolean drawnPosition(Position p);
+    public abstract boolean wonPosition(Position p, boolean playerIsHuman);
+    //public abstract int positionEvaluation(Position p, boolean playerIsHuman);
+    public abstract Position [] possibleMoves(Position p, boolean playerIsHuman);
+    public abstract Position makeMove(Position p, boolean player, Move move);
+    public abstract boolean reachedMaxDepth(Position p, int depth);
+    public abstract Move move();
+    public abstract boolean isGameOver();
+    //public abstract int getScore(boolean playerIsHuman);
 }
 

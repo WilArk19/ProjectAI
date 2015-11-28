@@ -9,15 +9,15 @@ public class Position {
 	private int playerNum;
 	
 	//does the position leads to a free turn
-	private boolean freeTurn;
+	//private boolean freeTurn;
 	
-	public boolean isFreeTurn() {
-		return freeTurn;
-	}
+	//public boolean isFreeTurn() {
+		//return freeTurn;
+	//}
 	
-	public void setFreeTurn(boolean freeTurn) {
+	/*public void setFreeTurn(boolean freeTurn) {
 		this.freeTurn = freeTurn;
-	}
+	}*/
 	
 	public int getNumOfStones() {
 		return numOfStones;
@@ -43,7 +43,5 @@ public class Position {
 	}
 	
 	
-	
-
-	
+		
 }

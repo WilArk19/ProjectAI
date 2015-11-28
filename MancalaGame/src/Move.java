@@ -3,6 +3,7 @@ public class Move {
 	
 	private int moveIndex;
 	
+	
 	public int getMoveIndex() {
 		return moveIndex;
 	}
@@ -15,5 +16,6 @@ public class Move {
 		this.moveIndex = moveIndex;
 		
 	}
-	
+
+	public Move(){}
 }
