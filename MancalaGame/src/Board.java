@@ -103,7 +103,7 @@ public class Board {
 	
 	//Display the board
 	public void displayBoard(){
-		System.out.println("Display the board");
+		//System.out.println("Display the board");
 		System.out.println(toString());
 		
 	}

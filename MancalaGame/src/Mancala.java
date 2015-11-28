@@ -1,4 +1,7 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 public class Mancala{
 
@@ -94,11 +97,20 @@ public class Mancala{
 
 		while (true){
 
+			//System.out.println();
+			System.out.println();
+			System.out.println("##################################");
+		
 			System.out.println("Playr Num is : " + currPlayer.playerNum);
-
+			System.out.println();
+			System.out.println();
+			
+			
 			Move nextMove;
 			if (!currPlayer.isHuman){
-				nextMove = getCompMove(mancalaBoard.getPitSize(),searchType);
+				//System.out.println("Progs turn");
+				nextMove = getCompMove(mancalaBoard.getPitSize(),searchType,currPlayer);
+				//System.out.println("Move selected is " + nextMove.getMoveIndex());
 			} else {
 				//System.out.println("get human move");
 				nextMove = getHumanMove(mancalaBoard.getPitSize(),currPlayer);
@@ -122,17 +134,6 @@ public class Mancala{
 				}
 
 				break;
-			}
-
-			if (wonPosition(nextMove, currPlayer.isHuman)){
-				if (currPlayer.isHuman){
-					System.out.println("Human won the Game");
-				}else{
-					System.out.println("Program won the Game");
-				}
-				//exit
-				System.exit(0);
-
 			}
 
 			//Toggle the turn if no free turn
@@ -176,10 +177,12 @@ public class Mancala{
 	}
 
 	//computer move generator
-	public Move getCompMove(int size, AlgoType searchType){
+	public Move getCompMove(int size, AlgoType searchType,Player currPlayer){
 		Move nextMove;
 		if (searchType == AlgoType.GREEDY){
-			nextMove = getGreedyMove();
+			//System.out.println("its a greedy search");
+			nextMove = getGreedyMove(currPlayer);
+			System.out.println("the next move selected by greedy is " + nextMove.getMoveIndex());
 		} else if (searchType == AlgoType.MINIMAX){
 			nextMove = getMiniMaxMove();
 		} else{
@@ -225,6 +228,7 @@ public class Mancala{
 		if (indexToCompare == myMancala)
 		{
 			freeTurn = true;
+			System.out.println("Yayyyyii , I got a free turn");
 		}else{
 
 			if (tempBoard[indexToCompare] == 1){
@@ -343,10 +347,134 @@ public class Mancala{
 
 
 	//Generate nextMove according to greedy algorithm
-	public Move getGreedyMove(){
+	public Move getGreedyMove(Player currPlayer){
 
-		return null;
+		TreeMap<Integer,ArrayList<Integer>> scoreMoveMap = new TreeMap<>();
+
+		int mancalaIndex = mancalaBoard.getMancala(currPlayer.playerNum);
+		int oppMancalaIndex = mancalaBoard.getOpponentsMancala(currPlayer.playerNum);
+
+		int startIndex = 0;
+		int endIndex = mancalaBoard.getPitSize();
+		if (currPlayer.playerNum == 2){
+			startIndex = mancalaBoard.getPitSize()+1;
+			endIndex = mancalaBoard.getBoardSize()-1;
+		} 
+
+		for (int i = startIndex; i< endIndex;i++){
+
+			Move currMove = new Move(i);
+			int[] tempBoard = new int[mancalaBoard.getBoardSize()];
+			tempBoard = makeTempMove(currMove, currPlayer);
+			
+			//System.out.println("tempBoard:" + tempBoard.toString());
+			
+			//System.out.println("mancala Index is : "+mancalaIndex);
+			int numToInc = tempBoard[mancalaIndex];
+			System.out.println("#######The move : " + i + " increases by: " + numToInc);
+			ArrayList<Integer> possibleMoves = new ArrayList<Integer>();
+
+			if (scoreMoveMap.containsKey(numToInc)){
+				possibleMoves = (ArrayList<Integer>) scoreMoveMap.get(numToInc);
+			}
+
+			possibleMoves.add(i);
+			//System.out.println("HashMap.adds " + i + " " + possibleMoves.toString());
+			scoreMoveMap.put(numToInc,possibleMoves);
+
+		}
+
+		int highestEvalVal =  scoreMoveMap.lastKey();
+		List<Integer> highestMoves = scoreMoveMap.get(highestEvalVal);
+		
+		Move finalMove = new Move(highestMoves.remove(0));
+		while(isIllegalMove(finalMove)){
+			finalMove = new Move(highestMoves.remove(0));
+		}
+		
+		return finalMove;
 	}
+
+
+	//gives the number of mancala stones for a move
+	public int checkMove(Move currMove, int mancalaIndex){
+
+		//int mancalaIndex = mancalaBoard.getMancala(currPlayer.playerNum);
+		int moveIndex = currMove.getMoveIndex();
+		int distFromMancala = mancalaIndex - moveIndex;
+		System.out.println("mancala is at: " + mancalaIndex);
+		System.out.println("dis from mancala: " + distFromMancala);
+
+		int[] tempBoard = mancalaBoard.getBoard();
+		int numOfStones = tempBoard[moveIndex];
+
+		System.out.println("num of stones: " + numOfStones + "  for move: " + moveIndex);
+		if (numOfStones < distFromMancala){
+
+			return 0;
+		} else {
+			return (1 + ((numOfStones - distFromMancala )/(2* mancalaBoard.getPitSize()+1)));
+		}
+
+	}
+
+	public int[] makeTempMove(Move move, Player currPlayer){
+
+		int moveIndex = move.getMoveIndex();
+		//System.out.println("for move" +  moveIndex) ;
+		//System.out.println("before anyMove");
+		mancalaBoard.displayBoard();
+		
+		int boardSize = mancalaBoard.getBoardSize();
+		int[] tempBoard = new int[boardSize];
+		int[] srcBoard = mancalaBoard.getBoard();
+		
+		System.arraycopy( srcBoard, 0, tempBoard, 0, boardSize );
+		
+		
+		//int boardSize = mancalaBoard.getBoardSize();
+		int numOfStones = tempBoard[moveIndex];
+
+		tempBoard[moveIndex] = 0;
+		moveIndex++;
+
+		while(numOfStones>0){
+			if ((moveIndex % boardSize ) == 
+					mancalaBoard.getOpponentsMancala(currPlayer.playerNum)){
+				moveIndex++;
+				continue;
+			}
+			tempBoard[(moveIndex) % boardSize]++;
+			moveIndex++;
+			numOfStones--;
+		}
+
+		//if just to check if we get a free turn
+		int indexToCompare = (moveIndex-1) % boardSize;
+		//System.out.println("indexTocomp : " +  indexToCompare);
+		int myMancala = mancalaBoard.getMancala(currPlayer.playerNum);
+
+		if(!(indexToCompare == myMancala)){
+			if (tempBoard[indexToCompare] == 1){
+				if ((currPlayer.playerNum == 1 && indexToCompare < mancalaBoard.getPitSize())
+						|| (currPlayer.playerNum == 2 && indexToCompare > mancalaBoard.getPitSize())){
+					//check opponents opp pit - 2*p - index
+					int oppPit = (mancalaBoard.getPitSize() * 2) - indexToCompare;
+					if (tempBoard[oppPit] > 0){
+						tempBoard[myMancala] += tempBoard[oppPit] + tempBoard[indexToCompare];
+						tempBoard[oppPit] = 0;
+						tempBoard[indexToCompare] = 0;
+					}
+
+				}
+			}
+		}
+		//System.out.println("tempBoard in make temp move: " + tempBoard.toString());
+		
+		return tempBoard;
+	}
+
+
 
 	//Generate nextMove according to Minimax algorithm
 	public Move getMiniMaxMove(){
@@ -359,35 +487,7 @@ public class Mancala{
 	}
 
 	//The logic for greedy algorithm 
-	public void greedy(){
 
-	}
-
-	//The logic for minimax algorithm 
-	public void minimax(){
-
-	}
-
-	//The logic for alphaBeta
-	public void alphaBeta(){
-
-	}
-
-
-	public boolean wonPosition(Move Move, boolean playerIsHuman){
-		//check if play the move is the game won
-		return false;
-	}
-
-	public int positionEvaluation(Position p, boolean playerIsHuman){
-
-		return -1;
-	}
-
-	public Position[] possibleMoves(Position p, boolean playerIsHuman){
-
-		return null;
-	}
 
 
 
