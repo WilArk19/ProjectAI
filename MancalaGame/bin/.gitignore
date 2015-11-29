@@ -1,12 +1,2 @@
-/AlgoType.class
-/Board.class
-/GameSearch.class
-/Mancala.class
-/Move.class
-/Position.class
-/TestCode.class
-/Chess.class
-/GameInterface.class
-/TicTacToe.class
-/ABC.class
-/Player.class
+/MoveFTCheck.class
+/BoardFTCheck.class

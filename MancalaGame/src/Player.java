@@ -8,5 +8,7 @@ public class Player {
 		this.isHuman = isHuman;
 		this.playerNum = playerNum;
 	}
+	
+	Player(){}
 }
 
