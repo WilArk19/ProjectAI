@@ -1,3 +1,4 @@
+import java.awt.DisplayMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -560,28 +561,41 @@ public class Mancala{
 
 		//MiniMaxNode retNode = evaluateGameTree(root, 0, 2);
 		//MiniMaxNode retNode = evaluateGameTreeWithGO(root, 0, 2);
+		System.out.println("DISPLAYING MY TREE");
+		gameTree.displayTree();
+
+		System.out.println("STARTING THE EVALUATION");
 		MiniMaxNode retNode = evaluateGameTreeWithGO2(root, 0, 2);
 
 
 		System.out.println("returned from eval madhuri");
 		//System.out.println("return Node eval func is: " + retNode.getEvalVal());
 
-		ArrayList<Move> retMoves = new ArrayList<Move>();
+		Move retMove = new Move();
+		//Selecting from roots child nodes - Maximizing
 		for(MiniMaxNode childNode: retNode.getChildrenList()){
-			//System.out.println(childNode.moveIndex.getMoveIndex() + " : " + childNode.getEvalVal());
-			if (retNode.getEvalVal() == childNode.getEvalVal()){
-				retMoves.add(childNode.getMoveIndex());
-			}
+			System.out.println(childNode.moveIndex.getMoveIndex() + " : " + childNode.getEvalVal());
+			if (retNode.getEvalVal() < childNode.getEvalVal()){
+				retNode.setEvalVal(childNode.getEvalVal());
+				retMove = childNode.getMoveIndex();
+			}	
 		}
 
 		//sort and get the minimum value of moveindex
-		Collections.sort(retMoves);
-		System.out.println("the next move is with moveindex : "+  retMoves.get(0).getMoveIndex());
-		return (retMoves.get(0));
+		//Collections.sort(retMoves);
+		System.out.println();
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		gameTree.displayTree();;
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+
+		System.out.println("the next move is with moveindex : "+  retMove.getMoveIndex());
+		return (retMove);
 
 
 		//#######################TODO#############################
-		//return new Move(0);
+		//return new Move(1);
 	}
 
 	public void miniMaxHelper(MiniMaxTree gameTree,MiniMaxNode rootNode, Player currPlayer, int[] tempBoard, int tempDepth, int globalDepth){
@@ -1082,7 +1096,18 @@ public class Mancala{
 				//if we reached the leaf find the evaluation right away
 				if (mydepth == globalDepth || bft.leadsToGameOver){
 					displayHelper(bft.tempBoard);
-					evalFunc = getEvalFunc(currPlayer, bft.tempBoard);
+
+					//If I dont get a free turn at last level then only evaluate
+					if (!bft.freeTurn){
+						evalFunc = getEvalFunc(currPlayer, bft.tempBoard);
+					} else {
+						//last level is already toggled
+						if (evalFunc == Integer.MAX_VALUE){
+							evalFunc = Integer.MIN_VALUE;
+						} else {
+							evalFunc = Integer.MAX_VALUE;
+						}
+					}
 				}
 
 				MiniMaxNode newNode = new MiniMaxNode(bft.tempBoard,currPlayer.playerNum,
@@ -1097,7 +1122,8 @@ public class Mancala{
 				System.out.println("In insert tree");
 				System.out.println("£££££££££££££££££££££££££££");
 				gameTree.insert(newNode, currParent);
-				
+				//gameTree.displayTree();
+
 				System.out.println("return from insert tree");
 				System.out.println();
 
@@ -1324,10 +1350,10 @@ public class Mancala{
 
 
 		int moveIndex = move.getMoveIndex();
-		
+
 		int boardSize = mancalaBoard.getBoardSize();
 		int[] tempBoard = new int[boardSize];
-		
+
 		System.arraycopy( srcBoard, 0, tempBoard, 0, boardSize );
 		int numOfStones = tempBoard[moveIndex];
 
@@ -1345,7 +1371,7 @@ public class Mancala{
 			numOfStones--;
 		}
 
-		
+
 		//if just to check if we get a free turn
 		int indexToCompare = (moveIndex-1) % boardSize;
 		//System.out.println("indexTocomp : " +  indexToCompare);
@@ -1357,7 +1383,7 @@ public class Mancala{
 		if (indexToCompare == myMancala)
 		{
 			freeTurn = true;
-			//System.out.println("Yayyyyii , I got a free turn");
+			System.out.println("Yayyyyii , I got a free turn");
 		}else{
 			if (tempBoard[indexToCompare] == 1){
 				if ((currPlayer.playerNum == 1 && indexToCompare < mancalaBoard.getPitSize())
@@ -1375,12 +1401,12 @@ public class Mancala{
 		}
 		//System.out.println("tempBoard in make temp move: " + tempBoard.toString());
 
-		
+
 
 		//if the game is over we need to evaluate the function
 		boolean gameOver = false;
 		if (isGameOver(tempBoard)){
-			
+
 			tempBoard = getAllStones(tempBoard);
 			gameOver = true;
 		}
@@ -1563,18 +1589,27 @@ public class Mancala{
 	public MiniMaxNode evaluateGameTreeWithGO2(MiniMaxNode rootNode, int height, int globalDepth)
 	{
 
-		if (height == globalDepth)
-		{
-			if (globalDepth % 2 == 0){
-				//toggle the sign if the level is even
-
-				rootNode.setEvalVal(rootNode.getEvalVal() * -1);
-			}
+		//if (height == globalDepth)
+		//{
+		if ((height == globalDepth) && globalDepth % 2 == 0 && (rootNode.childrenList.isEmpty() 
+				|| rootNode.childrenList == null)){
+			//toggle the sign if the level is even
+			System.out.println();
+			displayHelper(rootNode.nodeBoard);
+			System.out.println(" This is a leaf node");
+			rootNode.setEvalVal(rootNode.getEvalVal() * -1);
+			displayHelper(rootNode.nodeBoard);
 			return rootNode; 
 		}
+		//System.out.println("returning from leaf with this root board");
+
+		//System.out.println("eval func for leaf node is : " + rootNode.getEvalVal());
+		//System.out.println("returned now");
+
+		//}
 		else {
-			displayHelper(rootNode.nodeBoard);
-			System.out.println("list size for child" + rootNode.getChildrenList().size());
+			//displayHelper(rootNode.nodeBoard);
+			//System.out.println("list size for child" + rootNode.getChildrenList().size());
 
 			ArrayList<MiniMaxNode> childNodes = rootNode.getChildrenList();
 
@@ -1589,24 +1624,54 @@ public class Mancala{
 			}
 
 			for (MiniMaxNode node : childNodes){
-				int count =1;
-				System.out.println("going in for loop :" + count++);
+				//int count =1;
+				//System.out.println("going in for loop :");
 				MiniMaxNode retMove = evaluateGameTreeWithGO2(node, node.getDepth(), globalDepth);
 
-				if (rootNode.getDepth() % 2 == 0){
+				if ((node.getDepth() % 2 == 0) 
+						|| ( (node.getDepth() % 2 == 1) && (!node.getChildrenList().isEmpty()) ) ){
 					//even level has to be minimizer
-					if (retMove.getEvalVal() > rootNode.getEvalVal()){
+					//System.out.println(" In the Minimizer Code now");
+					//System.out.println("returned board is ");
+					//displayHelper(retMove.nodeBoard);
+					//System.out.println("RetMove eval: " + retMove.getEvalVal());
+					//System.out.println();
+
+					//System.out.println("The root node here is ");
+					//displayHelper(rootNode.getNodeBoard());
+
+					//System.out.println("rootNode eval befor: " + rootNode.getEvalVal() );
+					//System.out.println();
+					if (retMove.getEvalVal() < rootNode.getEvalVal()){
 						rootNode.setEvalVal(retMove.getEvalVal());
+						//System.out.println("i am in the if condition of minimizer");
+						//System.out.println("rootNode eval after if " + rootNode.getEvalVal() );
+
 					}
-				} else {
+				} else if((node.getDepth() % 2 == 0) 
+						|| ( (node.getDepth() % 2 == 1) && (!node.getChildrenList().isEmpty()) ) ){
+					//System.out.println(" In the Maximizer Code now");
+					//System.out.println("returned board is ");
+					//displayHelper(retMove.nodeBoard);
+					//System.out.println("RetMove eval: " + retMove.getEvalVal());
+					//System.out.println();
+
+					//System.out.println("The root node here is ");
+					//displayHelper(rootNode.getNodeBoard());
+
+					//System.out.println("rootNode eval: " + rootNode.getEvalVal() );
+					//System.out.println();
 					//odd level has to be a maximizer
-					if(retMove.getEvalVal() < rootNode.getEvalVal()){
+					if(retMove.getEvalVal() > rootNode.getEvalVal()){
+						//System.out.println("i am in condition of minimizer");
 						rootNode.setEvalVal(retMove.getEvalVal());
+						//System.out.println("rootNode eval after if " + rootNode.getEvalVal() );
 					}
 				}
 			}
 		}
 
+		//System.out.println("###############RETURNING #########################");
 		return rootNode;
 
 	}

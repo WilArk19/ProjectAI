@@ -10,15 +10,15 @@ class MiniMaxNode implements Comparable<MiniMaxNode> {
 	MiniMaxNode parentNode;
 	ArrayList<MiniMaxNode> childrenList; 
 	boolean parentGotaFreeTurn;
-	
+
 	MiniMaxNode(int[] nodeBoard,
-				int playerNum,
-				int depth,
-				int evalVal,
-				MiniMaxNode parentNode, 
-				Move moveIndex,
-				boolean wasFromFreeTurn){
-		
+			int playerNum,
+			int depth,
+			int evalVal,
+			MiniMaxNode parentNode, 
+			Move moveIndex,
+			boolean wasFromFreeTurn){
+
 		this.nodeBoard = nodeBoard;
 		this.playerNum = playerNum;
 		this.depth = depth;
@@ -27,8 +27,8 @@ class MiniMaxNode implements Comparable<MiniMaxNode> {
 		childrenList = new ArrayList<MiniMaxNode>();
 		this.moveIndex = moveIndex;
 		this.parentGotaFreeTurn = wasFromFreeTurn;
-		
-		
+
+
 	}
 
 	public Move getMoveIndex() {
@@ -47,7 +47,7 @@ class MiniMaxNode implements Comparable<MiniMaxNode> {
 		this.parentGotaFreeTurn = parentGotaFreeTurn;
 	}
 
-	
+
 	public int[] getNodeBoard() {
 		return nodeBoard;
 	}
@@ -56,7 +56,7 @@ class MiniMaxNode implements Comparable<MiniMaxNode> {
 		this.nodeBoard = nodeBoard;
 	}
 
-	
+
 	public int getPlayerNum() {
 		return playerNum;
 	}
@@ -96,44 +96,44 @@ class MiniMaxNode implements Comparable<MiniMaxNode> {
 	public void addToChildrenList(MiniMaxNode child) {
 		(this.childrenList).add(child);
 	}
-	
-	
+
+
 	@Override
 	public int compareTo(MiniMaxNode node2) {
-	    return (moveIndex.getMoveIndex() - node2.getMoveIndex().getMoveIndex());
+		return (moveIndex.getMoveIndex() - node2.getMoveIndex().getMoveIndex());
 	}
-	    
-	
+
+
 }
 
 public class MiniMaxTree{
-	
+
 	private MiniMaxNode root;
-	
+
 	public MiniMaxTree(){
 		root = null;
 	}
-	
+
 	public MiniMaxNode insert(MiniMaxNode nodeToInsert, MiniMaxNode parentNode ){
-		
+
 		if (root == null){
-			
+
 			root = nodeToInsert;
 		} else {
 			MiniMaxNode p = findNode(root,parentNode);
 			System.out.println("adding at node ");
-			displayHelper(parentNode.nodeBoard);
-			
+			//displayHelper(parentNode.nodeBoard);
+
 			p.addToChildrenList(nodeToInsert);
 		}
-		
-		System.out.println("Root");
-		displayHelper(root.nodeBoard);
-		System.out.println();
-		System.out.println("printed root");
+
+		//System.out.println("Root");
+		//displayHelper(root.nodeBoard);
+		//System.out.println();
+		//System.out.println("printed root");
 		return root;
 	}
-	
+
 	public void displayHelper(int[] board){
 		//System.out.println("################");
 		//System.out.println("in tree insert");
@@ -158,32 +158,55 @@ public class MiniMaxTree{
 
 	}
 
-	
-	
-	
+
+
+
 	public MiniMaxNode findNode(MiniMaxNode root, MiniMaxNode nodeToFind){
-	
-			if (root == nodeToFind){
+
+		if (root == nodeToFind){
+			return root;
+		}
+
+		//then check for all children
+		for (MiniMaxNode nodeI : root.getChildrenList()){
+			root = findNode(nodeI, nodeToFind);
+			if (root != null){
 				return root;
 			}
-			
-			//then check for all children
-			for (MiniMaxNode nodeI : root.getChildrenList()){
-				root = findNode(nodeI, nodeToFind);
-				if (root != null){
-					return root;
-				}
-				
-			}
-			return null;
-			
+
 		}
-	
+		return null;
+
+	}
+
 	public MiniMaxNode getRoot(){
 		return root;
 	}
- 		
+
+
+
+	public void displayTree(){
+		System.out.println("DISPLAYING THE TREE");
+		display(root);
 	}
 	
-	
-	
+	public void display(MiniMaxNode root){
+		if (root == null){
+			return ;
+		}
+		else{
+			for(MiniMaxNode s: root.getChildrenList()){
+				display(s);
+				displayHelper(s.nodeBoard);
+				System.out.println("the eval is : " + s.getEvalVal());
+				System.out.println();
+				
+			}
+
+		}
+
+	}
+}
+
+
+
