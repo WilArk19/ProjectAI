@@ -117,14 +117,48 @@ public class MiniMaxTree{
 	public MiniMaxNode insert(MiniMaxNode nodeToInsert, MiniMaxNode parentNode ){
 		
 		if (root == null){
+			
 			root = nodeToInsert;
 		} else {
 			MiniMaxNode p = findNode(root,parentNode);
+			System.out.println("adding at node ");
+			displayHelper(parentNode.nodeBoard);
+			
 			p.addToChildrenList(nodeToInsert);
 		}
 		
+		System.out.println("Root");
+		displayHelper(root.nodeBoard);
+		System.out.println();
+		System.out.println("printed root");
 		return root;
 	}
+	
+	public void displayHelper(int[] board){
+		//System.out.println("################");
+		//System.out.println("in tree insert");
+		//System.out.println("################");
+		int pitSize = (board.length - 2)/2;
+		System.out.print("P1 |  " +  board[pitSize] + " | ");
+		for(int i =pitSize-1; i >=0;i--){
+			System.out.print( board[i] + " ");
+
+		}
+		System.out.print(" | ");
+
+		System.out.println();
+		System.out.print("P2 |  " + " " + " | ");
+
+		for(int i =1; i<= pitSize;i++){
+			System.out.print(board[pitSize + i] + " ");
+		}
+
+		System.out.print(" | ");
+		System.out.println(board[board.length -1]);
+
+	}
+
+	
 	
 	
 	public MiniMaxNode findNode(MiniMaxNode root, MiniMaxNode nodeToFind){

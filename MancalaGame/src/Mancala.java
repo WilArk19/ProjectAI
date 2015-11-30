@@ -107,7 +107,9 @@ public class Mancala{
 			System.out.println("Playr Num is : " + currPlayer.playerNum);
 			System.out.println();
 			System.out.println();
-
+			System.out.println("################################");
+			System.out.println("          TURN CHANGED");
+			System.out.println("################################");
 
 			Move nextMove;
 			if (!currPlayer.isHuman){
@@ -123,8 +125,8 @@ public class Mancala{
 			//Play the move
 			boolean gotFreeTurn = makeMove(nextMove,currPlayer);
 
-			if (isGameOver()){
-				getAllStones();
+			if (isGameOver(mancalaBoard.getBoard())){
+				mancalaBoard.setBoard(getAllStones(mancalaBoard.getBoard()));
 				if (isGameDrawn()){
 					System.out.println("No winner : Game draw");
 				} else{
@@ -314,10 +316,10 @@ public class Mancala{
 
 
 
-	public  boolean isGameOver(){
+	public  boolean isGameOver(int[] tempBoard){
 
 		//check for player1
-		int[] tempBoard = mancalaBoard.getBoard();
+		//int[] tempBoard = mancalaBoard.getBoard();
 		int pitSize = mancalaBoard.getPitSize();
 		int totSize = mancalaBoard.getBoardSize();
 		boolean flag = true;
@@ -365,8 +367,8 @@ public class Mancala{
 			return 2;
 	}
 
-	public void getAllStones(){
-		int[] tempBoard = mancalaBoard.getBoard();
+	public int[] getAllStones(int[] tempBoard){
+		//int[] tempBoard = mancalaBoard.getBoard();
 		int pitSize = mancalaBoard.getPitSize();
 		int totSize = mancalaBoard.getBoardSize();
 
@@ -382,7 +384,8 @@ public class Mancala{
 			tempBoard[j] = 0;
 		}
 
-		mancalaBoard.setBoard(tempBoard);
+		//mancalaBoard.setBoard(tempBoard);
+		return tempBoard;
 	}
 
 
@@ -528,7 +531,9 @@ public class Mancala{
 
 
 		//miniMaxHelper(gameTree,rootNode, currPlayer, mancalaBoard.getBoard(), 0 ,globaldepth);
-		miniMaxHelper(gameTree,rootNode, currPlayer, mancalaBoard.getBoard(), 0,globaldepth, true);
+		//miniMaxHelper(gameTree,rootNode, currPlayer, mancalaBoard.getBoard(), 0,globaldepth, true);
+		//miniMaxHelperWithGO(gameTree,rootNode, currPlayer, mancalaBoard.getBoard(), 0,globaldepth, true);
+		gameTree = miniMaxHelperWithGO2(gameTree,rootNode, currPlayer, mancalaBoard.getBoard(), 0,globaldepth, true);
 
 
 
@@ -547,13 +552,20 @@ public class Mancala{
 
 
 		System.out.println("finally, done with tree building");
+		System.out.println("madhuri");
 
 		MiniMaxNode root = gameTree.getRoot();
+		System.out.println("root for the board before evaluation is" );
+		displayHelper(root.nodeBoard);
+
+		//MiniMaxNode retNode = evaluateGameTree(root, 0, 2);
+		//MiniMaxNode retNode = evaluateGameTreeWithGO(root, 0, 2);
+		MiniMaxNode retNode = evaluateGameTreeWithGO2(root, 0, 2);
 
 
-		MiniMaxNode retNode = evaluateGameTree(root, 0, 2);
+		System.out.println("returned from eval madhuri");
 		//System.out.println("return Node eval func is: " + retNode.getEvalVal());
-		
+
 		ArrayList<Move> retMoves = new ArrayList<Move>();
 		for(MiniMaxNode childNode: retNode.getChildrenList()){
 			//System.out.println(childNode.moveIndex.getMoveIndex() + " : " + childNode.getEvalVal());
@@ -561,7 +573,7 @@ public class Mancala{
 				retMoves.add(childNode.getMoveIndex());
 			}
 		}
-		
+
 		//sort and get the minimum value of moveindex
 		Collections.sort(retMoves);
 		System.out.println("the next move is with moveindex : "+  retMoves.get(0).getMoveIndex());
@@ -859,6 +871,256 @@ public class Mancala{
 	}
 
 
+	public void miniMaxHelperWithGO(MiniMaxTree gameTree,MiniMaxNode rootNode, Player currPlayer, int[] tempBoard, int tempDepth, int globalDepth, boolean checkParentsFt){
+		//System.out.println();
+		System.out.println();
+
+		//TODO : CHECK THE DEPTH
+		if (tempDepth >= globalDepth && !checkParentsFt ){
+			//System.out.println("GlobalDepth: " + globalDepth);
+			//System.out.println("reached end of depth so return \n");
+			//if (tempDepth == globalDepth){
+			return;
+		}
+
+
+		MiniMaxNode currParent = rootNode;
+
+		//Player tempPlayer	= new Player();
+		//System.out.println();
+		if (!checkParentsFt){
+			//System.out.println("Toggle the player because parent got a free turn");
+			if (currPlayer.equals (player1)){
+				//System.out.println("Toggle the player now from 1 to 2");
+				//currPlayer = player2;
+				currPlayer  = player2;
+			}else {
+				//System.out.println("Toggle the player now from 2 to 1");
+				//currPlayer = player1; 
+				currPlayer  = player1;
+			}
+
+		} else{
+			//System.out.println("do not change the player");
+		}
+
+
+		//System.out.println();
+		int startIndex = 0;
+		int endIndex = mancalaBoard.getPitSize();
+		if (currPlayer.playerNum == 2){
+			startIndex = mancalaBoard.getPitSize()+1;
+			endIndex = mancalaBoard.getBoardSize()-1;
+		} 
+
+		//boolean checkParentsFt = false;
+		int i = startIndex;
+		for (i = startIndex ;i <endIndex; i++){
+
+			Move currMove = new Move(i);
+			if (isIllegalMove(currMove,tempBoard)){
+				continue;
+			}else{
+				BoardFTCheck bft = makeTempMiniMaxMoveWithGO(currMove, currPlayer, tempBoard);
+				//System.out.println("isparentGotaFreeTurn: " + currParent.isparentGotaFreeTurn());
+				//System.out.println("Did parent get a free turn : " + checkParentsFt);
+
+				/*if (!currParent.isparentGotaFreeTurn()
+						&& !checkParentsFt){
+					System.out.println("in changing depth");
+					//if (currParent.depth > 0){
+						checkParentsFt = true;
+						System.out.println("checkparent ft changed to true once");
+
+					//}*/
+				//System.out.println();
+				//System.out.println("parents depth " + currParent.depth);
+				int mydepth = currParent.depth;
+				if (mydepth == 0){
+					//System.out.println("because root increase it");
+					mydepth++;
+				}
+
+				if (!checkParentsFt){
+					//System.out.println("parent dint have a free turn then only increase my depth");
+					mydepth++;
+				}
+				//System.out.println();
+				//}
+
+				int evalFunc;
+				//Odds are minimizers
+				if (mydepth % 2 == 1){
+					evalFunc = Integer.MAX_VALUE;
+				}else{
+					evalFunc = Integer.MIN_VALUE;
+				}
+
+				//if we reached the leaf find the evaluation right away
+				if (mydepth == globalDepth || bft.leadsToGameOver){
+					//System.out.println("my depth is two and board now is");
+					displayHelper(bft.tempBoard);
+					evalFunc = getEvalFunc(currPlayer, bft.tempBoard);
+					//System.out.println("and the eval for board is: " +evalFunc);
+				}
+
+				MiniMaxNode newNode = new MiniMaxNode(bft.tempBoard,currPlayer.playerNum,
+						mydepth,evalFunc,currParent,currMove,
+						bft.freeTurn);
+
+				//System.out.println();
+				displayHelper(bft.tempBoard);
+				//System.out.println("isFreeTurn: "+ bft.freeTurn);
+				//System.out.println("parent is at index:" + currParent.moveIndex.getMoveIndex());
+				//System.out.println("depth: " + mydepth);
+				//System.out.println("new Node Index: " + newNode.moveIndex.getMoveIndex() );
+
+				//System.out.println("EvalFUnc is :" + evalFunc);
+				//System.out.println("CurrPlayer is :" + currPlayer.playerNum );
+				//System.out.println("Done with this node");
+				System.out.println("#################");
+
+
+				gameTree.insert(newNode, currParent);
+
+
+				if(bft.freeTurn){
+					//System.out.println("befor rcall CurrPlayer is :" + currPlayer.playerNum );
+					//System.out.println("got a free turn now");
+					//checkParentsFt = true;
+					miniMaxHelperWithGO(gameTree,newNode,currPlayer, bft.tempBoard, mydepth, globalDepth,true);
+				} else{
+
+
+					//Toggle the currPlayer 
+					//System.out.println("Parent Depth : " + currParent.depth);
+					//checkParentsFt = false;
+					//System.out.println("no free turn");
+
+
+					//System.out.println("before re call CurrPlayer is :" + currPlayer.playerNum );
+					miniMaxHelperWithGO(gameTree,newNode,currPlayer, bft.tempBoard, mydepth, globalDepth,false);
+					//miniMaxHelper(gameTree,newNode,tempPlayer, bft.tempBoard, tempDepth, globalDepth,checkParentsFt);
+
+				}
+
+
+			}
+
+
+		}
+
+		//System.out.println("player num before backing up: " + currPlayer.playerNum);
+		//System.out.println("Returning from recursion from depth : " + tempDepth);
+		//System.out.println();
+
+
+
+	}
+
+
+
+
+	public MiniMaxTree miniMaxHelperWithGO2(MiniMaxTree gameTree,MiniMaxNode rootNode, 
+			Player currPlayer, int[] tempBoard, int tempDepth, int globalDepth, boolean checkParentsFt){
+
+		System.out.println();
+
+		//TODO : CHECK THE DEPTH
+		if (tempDepth >= globalDepth && !checkParentsFt ){
+			return gameTree;
+		}
+
+
+		MiniMaxNode currParent = rootNode;
+
+
+		if (!checkParentsFt){
+			if (currPlayer.equals (player1)){
+				currPlayer  = player2;
+			}else {
+				currPlayer  = player1;
+			}
+
+		}
+
+
+		int startIndex = 0;
+		int endIndex = mancalaBoard.getPitSize();
+		if (currPlayer.playerNum == 2){
+			startIndex = mancalaBoard.getPitSize()+1;
+			endIndex = mancalaBoard.getBoardSize()-1;
+		} 
+
+		//boolean checkParentsFt = false;
+		int i = startIndex;
+		for (i = startIndex ;i <endIndex; i++){
+
+			Move currMove = new Move(i);
+			if (isIllegalMove(currMove,tempBoard)){
+				continue;
+			}else{
+				BoardFTCheck bft = makeTempMiniMaxMoveWithGO2(currMove, currPlayer, tempBoard);
+
+				int mydepth = currParent.depth;
+				if (mydepth == 0){
+					mydepth++;
+				}
+
+				if (!checkParentsFt){
+					mydepth++;
+				}
+
+				int evalFunc;
+				//Odds are minimizers
+				if (mydepth % 2 == 1){
+					evalFunc = Integer.MAX_VALUE;
+				}else{
+					evalFunc = Integer.MIN_VALUE;
+				}
+
+				//if we reached the leaf find the evaluation right away
+				if (mydepth == globalDepth || bft.leadsToGameOver){
+					displayHelper(bft.tempBoard);
+					evalFunc = getEvalFunc(currPlayer, bft.tempBoard);
+				}
+
+				MiniMaxNode newNode = new MiniMaxNode(bft.tempBoard,currPlayer.playerNum,
+						mydepth,evalFunc,currParent,currMove,
+						bft.freeTurn);
+
+
+				//displayHelper(bft.tempBoard);
+				System.out.println("Node to insert is ");
+				displayHelper(newNode.nodeBoard);
+				System.out.println("£££££££££££££££££££££££££££");
+				System.out.println("In insert tree");
+				System.out.println("£££££££££££££££££££££££££££");
+				gameTree.insert(newNode, currParent);
+				
+				System.out.println("return from insert tree");
+				System.out.println();
+
+				if(bft.freeTurn){
+					miniMaxHelperWithGO2(gameTree,newNode,currPlayer, bft.tempBoard, mydepth, globalDepth,true);
+				} else{
+					miniMaxHelperWithGO2(gameTree,newNode,currPlayer, bft.tempBoard, mydepth, globalDepth,false);
+
+				}
+
+
+			}
+
+
+		}
+		return gameTree;
+
+	}
+
+
+
+
+
 
 
 
@@ -964,6 +1226,174 @@ public class Mancala{
 	}
 
 
+
+	public BoardFTCheck makeTempMiniMaxMoveWithGO(Move move, Player currPlayer, int[] srcBoard){
+
+
+		int moveIndex = move.getMoveIndex();
+		System.out.println();
+		System.out.println("###################################");
+		System.out.println("for move" +  moveIndex) ;
+		//System.out.println("before anyMove");
+		//mancalaBoard.displayBoard();
+
+		int boardSize = mancalaBoard.getBoardSize();
+		int[] tempBoard = new int[boardSize];
+		//int[] srcBoard = mancalaBoard.getBoard();
+
+		System.arraycopy( srcBoard, 0, tempBoard, 0, boardSize );
+
+
+		//int boardSize = mancalaBoard.getBoardSize();
+		int numOfStones = tempBoard[moveIndex];
+
+		tempBoard[moveIndex] = 0;
+		moveIndex++;
+
+		while(numOfStones>0){
+			if ((moveIndex % boardSize ) == 
+					mancalaBoard.getOpponentsMancala(currPlayer.playerNum)){
+				moveIndex++;
+				continue;
+			}
+			tempBoard[(moveIndex) % boardSize]++;
+			moveIndex++;
+			numOfStones--;
+		}
+
+		//System.out.println("after while");
+		//displayHelper(tempBoard);
+		//System.out.println();
+
+		//if just to check if we get a free turn
+		int indexToCompare = (moveIndex-1) % boardSize;
+		//System.out.println("indexTocomp : " +  indexToCompare);
+		int myMancala = mancalaBoard.getMancala(currPlayer.playerNum);
+
+		boolean freeTurn = false;
+
+		//if just to check if we get a free turn
+		if (indexToCompare == myMancala)
+		{
+			freeTurn = true;
+			System.out.println("Yayyyyii , I got a free turn");
+		}else{
+			if (tempBoard[indexToCompare] == 1){
+				if ((currPlayer.playerNum == 1 && indexToCompare < mancalaBoard.getPitSize())
+						|| (currPlayer.playerNum == 2 && indexToCompare > mancalaBoard.getPitSize())){
+					//check opponents opp pit - 2*p - index
+					int oppPit = (mancalaBoard.getPitSize() * 2) - indexToCompare;
+					if (tempBoard[oppPit] > 0){
+						tempBoard[myMancala] += tempBoard[oppPit] + tempBoard[indexToCompare];
+						tempBoard[oppPit] = 0;
+						tempBoard[indexToCompare] = 0;
+					}
+
+				}
+			}
+		}
+		//System.out.println("tempBoard in make temp move: " + tempBoard.toString());
+
+		System.out.println("Source Board");
+		displayHelper(srcBoard);
+		System.out.println();
+		System.out.println(" CHanged Board");
+		displayHelper(tempBoard);
+
+		//if the game is over we need to evaluate the function
+		boolean gameOver = false;
+		if (isGameOver(tempBoard)){
+			System.out.println();
+			System.out.println("???????????????????????????????????");
+			System.out.println("             GAME OVER       ");
+			System.out.println("???????????????????????????????????");
+			System.out.println();
+			tempBoard = getAllStones(tempBoard);
+			gameOver = true;
+		}
+
+
+		System.out.println();
+		BoardFTCheck bft = new BoardFTCheck(tempBoard,freeTurn,gameOver);
+		return bft;
+	}
+
+
+
+	public BoardFTCheck makeTempMiniMaxMoveWithGO2(Move move, Player currPlayer, int[] srcBoard){
+
+
+		int moveIndex = move.getMoveIndex();
+		
+		int boardSize = mancalaBoard.getBoardSize();
+		int[] tempBoard = new int[boardSize];
+		
+		System.arraycopy( srcBoard, 0, tempBoard, 0, boardSize );
+		int numOfStones = tempBoard[moveIndex];
+
+		tempBoard[moveIndex] = 0;
+		moveIndex++;
+
+		while(numOfStones>0){
+			if ((moveIndex % boardSize ) == 
+					mancalaBoard.getOpponentsMancala(currPlayer.playerNum)){
+				moveIndex++;
+				continue;
+			}
+			tempBoard[(moveIndex) % boardSize]++;
+			moveIndex++;
+			numOfStones--;
+		}
+
+		
+		//if just to check if we get a free turn
+		int indexToCompare = (moveIndex-1) % boardSize;
+		//System.out.println("indexTocomp : " +  indexToCompare);
+		int myMancala = mancalaBoard.getMancala(currPlayer.playerNum);
+
+		boolean freeTurn = false;
+
+		//if just to check if we get a free turn
+		if (indexToCompare == myMancala)
+		{
+			freeTurn = true;
+			//System.out.println("Yayyyyii , I got a free turn");
+		}else{
+			if (tempBoard[indexToCompare] == 1){
+				if ((currPlayer.playerNum == 1 && indexToCompare < mancalaBoard.getPitSize())
+						|| (currPlayer.playerNum == 2 && indexToCompare > mancalaBoard.getPitSize())){
+					//check opponents opp pit - 2*p - index
+					int oppPit = (mancalaBoard.getPitSize() * 2) - indexToCompare;
+					if (tempBoard[oppPit] > 0){
+						tempBoard[myMancala] += tempBoard[oppPit] + tempBoard[indexToCompare];
+						tempBoard[oppPit] = 0;
+						tempBoard[indexToCompare] = 0;
+					}
+
+				}
+			}
+		}
+		//System.out.println("tempBoard in make temp move: " + tempBoard.toString());
+
+		
+
+		//if the game is over we need to evaluate the function
+		boolean gameOver = false;
+		if (isGameOver(tempBoard)){
+			
+			tempBoard = getAllStones(tempBoard);
+			gameOver = true;
+		}
+
+
+		System.out.println();
+		BoardFTCheck bft = new BoardFTCheck(tempBoard,freeTurn,gameOver);
+		return bft;
+	}
+
+
+
+
 	//evaluate all tree and select the correct move
 	public MiniMaxNode evaluateGameTree(MiniMaxNode rootNode, int height, int globalDepth)
 	{
@@ -985,7 +1415,7 @@ public class Mancala{
 			ArrayList<MiniMaxNode> childNodes = rootNode.getChildrenList();
 			//sort the list to get the first min according to the rule
 			Collections.sort(childNodes);
-			
+
 
 
 			for (MiniMaxNode node : childNodes){
@@ -994,10 +1424,10 @@ public class Mancala{
 				if (rootNode.getDepth() % 2 == 0){
 					//even level has to be minimizer
 					//System.out.println("The depth for node : " + rootNode.getMoveIndex().getMoveIndex() + 
-							//" +is : " + rootNode.getDepth());
+					//" +is : " + rootNode.getDepth());
 					//System.out.println("returned evalfunc : " + retMove.getEvalVal());
 					//System.out.println(" nodes evalfunc before changing :  "+ rootNode.getEvalVal());
-					
+
 					if (retMove.getEvalVal() > rootNode.getEvalVal()){
 
 
@@ -1008,15 +1438,15 @@ public class Mancala{
 
 				} else {
 					//odd level has to be a maximizer
-					
+
 					//System.out.println("The depth for node : " + rootNode.getMoveIndex().getMoveIndex() + 
-						//	" +is : " + rootNode.getDepth());
+					//	" +is : " + rootNode.getDepth());
 					//System.out.println("returned evalfunc : " + retMove.getEvalVal());
 					//System.out.println(" nodes evalfunc before changing :  "+ rootNode.getEvalVal());
 
-					
+
 					if(retMove.getEvalVal() < rootNode.getEvalVal()){
-						
+
 						rootNode.setEvalVal(retMove.getEvalVal());
 
 						//System.out.println(" nodes evalfunc after changing :  "+ rootNode.getEvalVal());
@@ -1027,13 +1457,179 @@ public class Mancala{
 
 		return rootNode;
 	}
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+	public MiniMaxNode evaluateGameTreeWithGO(MiniMaxNode rootNode, int height, int globalDepth)
+	{
+		System.out.println("in eval madhuri");
+		System.out.println("height : " + height);
+		System.out.println("global depth : " + globalDepth);
+		if (height == globalDepth)
+		{
+			System.out.println("reached the maxDepth");
+			System.out.println("height : " + height);
+			if (globalDepth % 2 == 0){
+				//toggle the sign if the level is even
+				System.out.println("in if of toggling level");
+				rootNode.setEvalVal(rootNode.getEvalVal() * -1);
+			}
+			System.out.println("returning from: " + rootNode.getMoveIndex().getMoveIndex() );
+			return rootNode; 
+		}
+		else {
+			System.out.println("came in else");
+			System.out.println("board is");
+			//displayHelper(rootNode.nodeBoard);
+
+
+			//System.out.println(rootNode.getMoveIndex().getMoveIndex());
+			ArrayList<MiniMaxNode> childNodes = rootNode.getChildrenList();
+			//sort the list to get the first min according to the rule
+			//Collections.sort(childNodes);
+
+			for(MiniMaxNode childNode: childNodes){
+				System.out.println(childNode.moveIndex.getMoveIndex() + " : " + childNode.getEvalVal());
+				//childNode.getMoveIndex());
+
+			}
+
+
+
+			//we have not reached the depth but its still a leaf
+			if (childNodes == null || childNodes.isEmpty()){
+				if (rootNode.getDepth() % 2 == 0){
+					System.out.println("The children were empty here");
+					//toggle the sign if the level is even
+					rootNode.setEvalVal(rootNode.getEvalVal() * -1);
+				} 
+
+				return rootNode; 
+			}
+
+
+
+			for (MiniMaxNode node : childNodes){
+				int count = 1;
+				displayHelper(node.getNodeBoard());
+				System.out.println("list size is: " + childNodes.size() );
+				System.out.println("going in for loop " + count++);
+				MiniMaxNode retMove = evaluateGameTreeWithGO(node, node.getDepth(), globalDepth);
+
+				if (rootNode.getDepth() % 2 == 0){
+					//even level has to be minimizer
+					System.out.println("MINIMIZER : The depth for node : " + rootNode.getMoveIndex().getMoveIndex() + 
+							" +is : " + rootNode.getDepth());
+					System.out.println("returned evalfunc : " + retMove.getEvalVal());
+					System.out.println(" nodes evalfunc before changing :  "+ rootNode.getEvalVal());
+
+					if (retMove.getEvalVal() > rootNode.getEvalVal()){
+
+
+						rootNode.setEvalVal(retMove.getEvalVal());
+
+						System.out.println(" nodes evalfunc after changing :  "+ rootNode.getEvalVal());
+					}
+
+				} else {
+					//odd level has to be a maximizer
+
+					System.out.println("MAXIMIZER The depth for node : " + rootNode.getMoveIndex().getMoveIndex() + 
+							" +is : " + rootNode.getDepth());
+					System.out.println("returned evalfunc : " + retMove.getEvalVal());
+					System.out.println(" nodes evalfunc before changing :  "+ rootNode.getEvalVal());
+
+
+					if(retMove.getEvalVal() < rootNode.getEvalVal()){
+
+						rootNode.setEvalVal(retMove.getEvalVal());
+
+						System.out.println(" nodes evalfunc after changing :  "+ rootNode.getEvalVal());
+					}
+				}
+			}
+		}
+
+		return rootNode;
+
+	}
+
+
+
+
+
+	public MiniMaxNode evaluateGameTreeWithGO2(MiniMaxNode rootNode, int height, int globalDepth)
+	{
+
+		if (height == globalDepth)
+		{
+			if (globalDepth % 2 == 0){
+				//toggle the sign if the level is even
+
+				rootNode.setEvalVal(rootNode.getEvalVal() * -1);
+			}
+			return rootNode; 
+		}
+		else {
+			displayHelper(rootNode.nodeBoard);
+			System.out.println("list size for child" + rootNode.getChildrenList().size());
+
+			ArrayList<MiniMaxNode> childNodes = rootNode.getChildrenList();
+
+			//we have not reached the depth but its still a leaf
+			if (childNodes == null || childNodes.isEmpty()){
+				if (rootNode.getDepth() % 2 == 0){
+					//toggle the sign if the level is even
+					rootNode.setEvalVal(rootNode.getEvalVal() * -1);
+				} 
+
+				return rootNode; 
+			}
+
+			for (MiniMaxNode node : childNodes){
+				int count =1;
+				System.out.println("going in for loop :" + count++);
+				MiniMaxNode retMove = evaluateGameTreeWithGO2(node, node.getDepth(), globalDepth);
+
+				if (rootNode.getDepth() % 2 == 0){
+					//even level has to be minimizer
+					if (retMove.getEvalVal() > rootNode.getEvalVal()){
+						rootNode.setEvalVal(retMove.getEvalVal());
+					}
+				} else {
+					//odd level has to be a maximizer
+					if(retMove.getEvalVal() < rootNode.getEvalVal()){
+						rootNode.setEvalVal(retMove.getEvalVal());
+					}
+				}
+			}
+		}
+
+		return rootNode;
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	//Generate nextMove according to aplha beta algorithm
 	public Move getAlphaBetaMove(){
 		return null;
