@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 
-class MiniMaxNode {
+class MiniMaxNode implements Comparable<MiniMaxNode> {
 	int[] nodeBoard;
 	int playerNum;
 	int depth;
@@ -98,6 +98,12 @@ class MiniMaxNode {
 	}
 	
 	
+	@Override
+	public int compareTo(MiniMaxNode node2) {
+	    return (moveIndex.getMoveIndex() - node2.getMoveIndex().getMoveIndex());
+	}
+	    
+	
 }
 
 public class MiniMaxTree{
@@ -138,6 +144,10 @@ public class MiniMaxTree{
 			return null;
 			
 		}
+	
+	public MiniMaxNode getRoot(){
+		return root;
+	}
  		
 	}
 	
