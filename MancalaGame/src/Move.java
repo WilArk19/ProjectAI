@@ -1,5 +1,5 @@
 //Class for definig a move
-public class Move {
+public class Move implements Comparable<Move> {
 	
 	private int moveIndex;
 	
@@ -18,4 +18,10 @@ public class Move {
 	}
 
 	public Move(){}
+	
+	
+	@Override
+	public int compareTo(Move move2) {
+	    return (moveIndex - move2.getMoveIndex());
+	}
 }
