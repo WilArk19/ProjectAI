@@ -121,7 +121,7 @@ public class MiniMaxTree{
 			root = nodeToInsert;
 		} else {
 			MiniMaxNode p = findNode(root,parentNode);
-			System.out.println("adding at node ");
+			//System.out.println("adding at node ");
 			//displayHelper(parentNode.nodeBoard);
 
 			p.addToChildrenList(nodeToInsert);
@@ -198,8 +198,8 @@ public class MiniMaxTree{
 			for(MiniMaxNode s: root.getChildrenList()){
 				display(s);
 				displayHelper(s.nodeBoard);
-				System.out.println("the eval is : " + s.getEvalVal());
-				System.out.println();
+				/*System.out.println("the eval is : " + s.getEvalVal());
+				System.out.println();*/
 				
 			}
 
